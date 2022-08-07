@@ -60,13 +60,14 @@ module.exports = (() => {
                     });
                     
                     Patcher.after(EmojiPicker, 'useEmojiSelectHandler', (_, args, ret) => {
-                    return function (data, state) {
-                        if (state.toggleFavorite) return ret.apply(this, arguments);
+                        return function (data, state) {
+                            if (state.toggleFavorite) return ret.apply(this, arguments);
 
-                        if (!data.isDisabled) {
+                            if (!data.isDisabled) {
                                 const url = "https://github.com/0zBug/FluentEmoji/blob/main/" + data.emoji.name + ".gif?raw=true"
-                                
+                                    
                                 require('request')(url, function(err, res, body) {
+                                    console.log(res)
                                     if (res.statusCode == 200) {
                                         MessageUtilities.sendMessage(SelectedChannelStore.getChannelId(), {
                                             content: url
@@ -79,6 +80,25 @@ module.exports = (() => {
                                 });
                             }
                         }
+                    });
+
+                    Patcher.instead(MessageUtilities, 'sendMessage', (thisObj, args, originalFn) => {
+                        const [channel, message] = args;
+                        const split = message.content.split(/(https:\/\/raw\.github\.com\/0zBug\/FluentEmoji\/main\/\w+\.gif)/).map(s => s.trim()).filter(s => s.length);
+
+                        const promises = [];
+                        for (let i = 0; i < split.length; i++) {
+                            const text = split[i];
+
+                            console.log(text)
+                            promises.push(new Promise((resolve, reject) => {
+                                window.setTimeout(() => {
+                                    originalFn.call(thisObj, channel, { content: text, validNonShortcutEmojis: [] }).then(resolve).catch(reject);
+                                }, i * 100);
+                            }));
+                        }
+
+                        return Promise.all(promises).then(ret => ret[ret.length - 1]);
                     });
                 }
 
