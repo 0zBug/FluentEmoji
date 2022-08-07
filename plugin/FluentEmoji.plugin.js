@@ -43,11 +43,22 @@ module.exports = (() => {
                 }
             } = Api;
 
+            const EmojiParser = WebpackModules.findByUniqueProperties(['parse', 'parsePreprocessor', 'unparse']);
             const EmojiPicker = WebpackModules.findByUniqueProperties(['useEmojiSelectHandler']);
             const MessageUtilities = WebpackModules.getByProps("sendMessage");
 
             return class FluentEmoji extends Plugin {
                 onStart() {
+                    Patcher.after(EmojiParser, 'parse', (_, args, ret) => {
+                        for (const emoji of ret.validNonShortcutEmojis) {
+                            if (emoji.available) {
+                                ret.content = ret.content.replace(emoji.surrogates, "https://raw.github.com/0zBug/FluentEmoji/main/" + emoji.name + ".gif ");
+                            }
+                        }
+
+                        return ret;
+                    });
+                    
                     Patcher.after(EmojiPicker, 'useEmojiSelectHandler', (_, args, ret) => {
                     return function (data, state) {
                         if (state.toggleFavorite) return ret.apply(this, arguments);
