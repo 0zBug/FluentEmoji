@@ -8,8 +8,8 @@ module.exports = (() => {
             name: 'FluentEmoji',
             authors: [
                 {
-                name: 'Bug',
-                github_username: '0zBug'
+                    name: 'Bug',
+                    github_username: '0zBug'
                 },
             ],
             version: '1.0',
@@ -53,24 +53,16 @@ module.exports = (() => {
                         if (state.toggleFavorite) return ret.apply(this, arguments);
 
                         if (!data.isDisabled) {
-                                const base = "https://github.com/0zBug/FluentEmoji/blob/main/"
+                                const url = "https://github.com/0zBug/FluentEmoji/blob/main/" + data.emoji.name + ".gif?raw=true"
                                 
-                                require('request')(base + data.emoji.name + ".gif?raw=true", function(err, res, body) {
+                                require('request')(url, function(err, res, body) {
                                     if (res.statusCode == 200) {
                                         MessageUtilities.sendMessage(SelectedChannelStore.getChannelId(), {
-                                            content: base + data.emoji.name + ".gif?raw=true"
+                                            content: url
                                         });
                                     } else {
-                                        require('request')(base + data.emoji.name + ".png?raw=true", function(err, res, body) {
-                                            if (res.statusCode == 200) {
-                                                MessageUtilities.sendMessage(SelectedChannelStore.getChannelId(), {
-                                                    content: base + data.emoji.name + ".png?raw=true"
-                                                });
-                                            } else {
-                                                MessageUtilities.sendMessage(SelectedChannelStore.getChannelId(), {
-                                                    content: ":" + data.emoji.name + ":"
-                                                });
-                                            }
+                                        MessageUtilities.sendMessage(SelectedChannelStore.getChannelId(), {
+                                            content: ":" + data.emoji.name + ":"
                                         });
                                     }
                                 });
