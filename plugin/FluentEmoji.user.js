@@ -1,13 +1,10 @@
 // ==UserScript==
 // @name FluentEmoji
-// @version 1.0
-// @description Use microsoft fluent emojis on discord
 // @author Bug
+// @description Use microsoft fluent emojis on discord
+// @version 1.0
 // @match https://*.discord.com/*
-// @grant unsafeWindow
-// @grant GM.xmlHttpRequest
 // ==/UserScript==
-
 
 (function() {
 'use strict';
